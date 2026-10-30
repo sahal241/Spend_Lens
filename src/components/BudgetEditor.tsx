@@ -4,6 +4,7 @@ import { BUCKETS, META } from "../types";
 import { allocate, money, moneyInput, parseMoney } from "../utils/money";
 import { BucketIcon, Icon, useFeedback } from "./UI";
 import { useStore } from "../store/useStore";
+import { defaults } from "../db";
 export function BudgetEditor({
   initial,
   onDone,
@@ -37,6 +38,13 @@ export function BudgetEditor({
     return allocate(initial.salary, weights).map(moneyInput);
   });
   const [busy, setBusy] = useState(false);
+  const [categoryDraft] = useState(() => (initial ? [] : defaults()));
+  const [categoryLimits, setCategoryLimits] = useState<Record<string, string>>(
+    {},
+  );
+  const limitsValid = Object.values(categoryLimits).every((value) =>
+    Number.isFinite(parseMoney(value || "0")),
+  );
   const { run, toast } = useFeedback();
   const pctTotal = ratios.reduce(
     (sum, v) => sum + Math.round(Number(v) * 100),
@@ -53,7 +61,8 @@ export function BudgetEditor({
       : Number.isFinite(salaryValue) &&
         amountValues.every(Number.isFinite) &&
         amountTotal === salaryValue;
-  const valid = Number.isFinite(salaryValue) && salaryValue > 0 && balanced;
+  const valid =
+    Number.isFinite(salaryValue) && salaryValue > 0 && balanced && limitsValid;
   const weights = ratios.map((v) =>
     Number.isFinite(Number(v))
       ? Math.max(0, Math.min(10000, Math.round(Number(v || 0) * 100)))
@@ -107,18 +116,26 @@ export function BudgetEditor({
           mode === "ratio"
             ? ratios.map(Number)
             : allocate(10000, amountValues).map((v) => v / 100);
-        await useStore.getState().saveSettings({
-          ...initial,
-          id: 1,
-          salary: salaryValue,
-          splitMode: mode,
-          needsPct: pcts[0],
-          wantsPct: pcts[1],
-          savingsPct: pcts[2],
-          amountWeights: mode === "amount" ? amountValues : undefined,
-          theme: initial?.theme ?? "system",
-          reminderTime: initial?.reminderTime ?? null,
-        });
+        await useStore.getState().saveSettings(
+          {
+            ...initial,
+            id: 1,
+            salary: salaryValue,
+            splitMode: mode,
+            needsPct: pcts[0],
+            wantsPct: pcts[1],
+            savingsPct: pcts[2],
+            amountWeights: mode === "amount" ? amountValues : undefined,
+            theme: initial?.theme ?? "system",
+            reminderTime: initial?.reminderTime ?? null,
+          },
+          initial
+            ? undefined
+            : categoryDraft.map((category) => ({
+                ...category,
+                limit: parseMoney(categoryLimits[category.id] || "0"),
+              })),
+        );
         toast(
           initial
             ? "Your monthly plan is updated."
@@ -139,14 +156,16 @@ export function BudgetEditor({
         <input
           id="salary"
           inputMode="decimal"
-          placeholder="50,000"
+          placeholder="Enter your salary"
+          aria-describedby="salary-hint"
           value={salary}
           onChange={(e) => changeSalary(e.target.value.replace(/,/g, ""))}
         />
         <span className="per-month">/ month</span>
       </div>
-      <p className="field-hint">
-        The amount that actually lands in your account.
+      <p className="field-hint" id="salary-hint">
+        Enter the amount that actually lands in your account. Your spending
+        starts at ₹0; only expenses you log will appear.
       </p>
       <div className="section-heading">
         <h3>Give every rupee a purpose</h3>
@@ -229,6 +248,63 @@ export function BudgetEditor({
             : " • amounts must equal your salary"}
       </div>
       {!initial && (
+        <details className="setup-limits">
+          <summary>Set subcategory amounts (optional)</summary>
+          <p className="field-hint">
+            How much do you plan to spend on rent, food and everything else?
+            Leave a limit blank to keep it at ₹0. You can adjust these later.
+          </p>
+          {BUCKETS.map((bucket, index) => {
+            const categories = categoryDraft.filter((c) => c.bucket === bucket);
+            const allocated = categories.reduce((total, c) => {
+              const value = parseMoney(categoryLimits[c.id] || "0");
+              return total + (Number.isFinite(value) ? value : 0);
+            }, 0);
+            const available = Number.isFinite(computed[index])
+              ? computed[index]
+              : 0;
+            return (
+              <fieldset key={bucket} className="setup-limit-group">
+                <legend>{META[bucket].label}</legend>
+                {categories.map((category) => (
+                  <div className="setup-limit-row" key={category.id}>
+                    <label htmlFor={`setup-${category.id}`}>
+                      {category.name}
+                    </label>
+                    <input
+                      id={`setup-${category.id}`}
+                      aria-label={`${category.name} monthly limit in rupees`}
+                      inputMode="decimal"
+                      placeholder="₹0"
+                      value={categoryLimits[category.id] ?? ""}
+                      onChange={(event) =>
+                        setCategoryLimits((old) => ({
+                          ...old,
+                          [category.id]: event.target.value.replace(/,/g, ""),
+                        }))
+                      }
+                    />
+                  </div>
+                ))}
+                <p
+                  className={`field-hint ${allocated > available ? "danger-text" : ""}`}
+                  role="status"
+                >
+                  {allocated > available
+                    ? `${money(allocated - available)} above your ${META[bucket].label} budget`
+                    : `${money(available - allocated)} unallocated`}
+                </p>
+              </fieldset>
+            );
+          })}
+          {!limitsValid && (
+            <p className="danger-text" role="alert">
+              Enter valid limits with up to two decimal places.
+            </p>
+          )}
+        </details>
+      )}
+      {!initial && (
         <div className="info-note">
           <Icon name="Sprout" />
           <p>
@@ -248,11 +324,7 @@ export function BudgetEditor({
           disabled={!valid || busy}
           onClick={save}
         >
-          {busy
-            ? "Saving…"
-            : initial
-              ? "Save monthly plan"
-              : "Let’s bring it into focus"}
+          {busy ? "Saving…" : initial ? "Save monthly plan" : "Start tracking"}
           <Icon name="ArrowUpRight" size={18} />
         </button>
       </div>

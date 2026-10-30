@@ -1,6 +1,6 @@
 import "fake-indexeddb/auto";
 import { beforeEach, describe, expect, it } from "vitest";
-import { db } from "../src/db";
+import { db, defaults } from "../src/db";
 import { useStore } from "../src/store/useStore";
 import { monthKey, mondayKey, moveMonth } from "../src/utils/dates";
 import { makeBackup, restoreBackup, validateBackup } from "../src/utils/backup";
@@ -18,6 +18,36 @@ beforeEach(async () => {
   await useStore.getState().reset();
 });
 describe("monthly snapshots and persistence", () => {
+  it("opens a fresh installation without settings, budgets or demo expenses", async () => {
+    await useStore.getState().init();
+    expect(useStore.getState()).toMatchObject({
+      ready: true,
+      settings: null,
+      categories: [],
+      transactions: [],
+      budgets: [],
+    });
+  });
+  it("saves the user's setup amounts without creating expenses and preserves them on reload", async () => {
+    const categories = defaults().map((category, index) => ({
+      ...category,
+      limit: index === 0 ? 1234567 : 0,
+    }));
+    await useStore.getState().saveSettings(settings, categories);
+    await useStore.getState().init();
+    expect(useStore.getState().settings?.salary).toBe(settings.salary);
+    expect(useStore.getState().categories).toEqual(
+      expect.arrayContaining(categories),
+    );
+    expect(useStore.getState().transactions).toEqual([]);
+    expect((await db.monthlyBudgets.get(monthKey()))?.categories).toEqual(
+      categories,
+    );
+    await useStore.getState().saveSettings({ ...settings, salary: 6000000 });
+    expect(useStore.getState().categories).toEqual(
+      expect.arrayContaining(categories),
+    );
+  });
   it("carries salary, split and category limits into the next month", async () => {
     await useStore.getState().saveSettings(settings);
     const cats = useStore

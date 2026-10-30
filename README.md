@@ -13,7 +13,7 @@ npm install
 npm run dev
 ```
 
-Open the Local URL printed by Vite (normally http://localhost:5173). The app fits a 480px column on larger screens. Complete the three-slide introduction, enter your monthly take-home salary, then confirm a balanced split. Settings → **Load demo data** provides two months of example transactions and category budgets; it asks before replacing existing data.
+Open the Local URL printed by Vite (normally http://localhost:5173). The app fits a 480px column on larger screens. First launch opens your budget setup directly: enter your monthly take-home salary, confirm a balanced ratio or rupee split, and optionally enter subcategory limits. The three-slide introduction is available through “Take a quick tour.” Spending starts at zero; no example salary, limits or transactions are automatically saved. Settings → **Load demo data** provides two months of example transactions and category budgets; it asks before replacing existing data.
 
 ## Test, build and preview
 

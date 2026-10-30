@@ -116,6 +116,14 @@ function SpendLens() {
     );
   return (
     <div className="app-shell">
+      {pwa.needRefresh && (
+        <div className="update-banner">
+          <span>A fresh version is ready.</span>
+          <button className="text-button" onClick={() => void pwa.update()}>
+            Update now
+          </button>
+        </div>
+      )}
       {!settings ? (
         <Onboarding />
       ) : (
@@ -137,14 +145,6 @@ function SpendLens() {
             <div className="offline-banner">
               <Icon name="WifiOff" size={14} /> You’re offline. Your entries
               still save on this device.
-            </div>
-          )}
-          {pwa.needRefresh && (
-            <div className="update-banner">
-              <span>A fresh version is ready.</span>
-              <button className="text-button" onClick={() => void pwa.update()}>
-                Update now
-              </button>
             </div>
           )}
           <main id="main" className="main-content" key={tab}>

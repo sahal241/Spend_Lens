@@ -13,7 +13,7 @@ interface State {
   init: () => Promise<void>;
   refresh: () => Promise<void>;
   ensureMonth: (key: string) => Promise<void>;
-  saveSettings: (s: Settings) => Promise<void>;
+  saveSettings: (s: Settings, initialCategories?: Category[]) => Promise<void>;
   saveCategories: (c: Category[]) => Promise<void>;
   saveTransaction: (t: Transaction) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
@@ -79,8 +79,10 @@ export const useStore = create<State>((set, get) => ({
     await db.monthlyBudgets.put(snapshot);
     await get().refresh();
   },
-  saveSettings: async (s) => {
-    const cats = get().categories.length ? get().categories : defaults();
+  saveSettings: async (s, initialCategories) => {
+    const cats = get().categories.length
+      ? get().categories
+      : (initialCategories ?? defaults());
     await db.transaction(
       "rw",
       [db.settings, db.categories, db.monthlyBudgets],

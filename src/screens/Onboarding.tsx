@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { BudgetEditor } from "../components/BudgetEditor";
 import { Icon, Logo } from "../components/UI";
 export function Onboarding() {
-  const [step, setStep] = useState(0);
-  useEffect(() => window.scrollTo(0, 0), [step]);
+  const [step, setStep] = useState(3);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
   const slides = [
     {
       icon: "Wallet",
@@ -99,8 +101,8 @@ export function Onboarding() {
         </>
       ) : (
         <div className="onboard-setup">
-          <button className="back-button" onClick={() => setStep(2)}>
-            <Icon name="ChevronLeft" /> Back
+          <button className="back-button" onClick={() => setStep(0)}>
+            <Icon name="CircleHelp" /> Take a quick tour
           </button>
           <span className="eyebrow">LET’S MAKE A LITTLE ROOM</span>
           <h1>
@@ -108,7 +110,10 @@ export function Onboarding() {
             <br />
             <span>Your plan.</span>
           </h1>
-          <p className="muted">See every rupee. Keep more of it.</p>
+          <p className="muted">
+            What’s your monthly take-home salary? Enter your amount, then choose
+            how much goes to Needs, Wants and Savings.
+          </p>
           <BudgetEditor onDone={() => {}} />
           <p className="privacy-inline">
             <Icon name="LockKeyhole" size={14} /> No bank access. No SMS

@@ -2244,6 +2244,47 @@ button:disabled svg {
   margin-top: 24px;
   font-size: 8px;
 }
+.setup-limits {
+  margin-top: 24px;
+  padding: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+.setup-limits summary {
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.setup-limit-group {
+  border: 0;
+  padding: 0;
+  margin-top: 22px;
+  min-width: 0;
+}
+.setup-limit-group legend {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.setup-limit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
+.setup-limit-row label {
+  font-size: 12px;
+  flex: 1;
+}
+.setup-limit-row input {
+  width: 105px;
+  min-height: 44px;
+  text-align: right;
+}
 .app-loading,
 .fatal-error {
   min-height: 100dvh;
