@@ -351,14 +351,74 @@ button:disabled svg {
   color: var(--primary);
   margin-top: 3px;
 }
+.hero-card-frame {
+  position: relative;
+  isolation: isolate;
+  padding: 2px;
+  border-radius: 25px;
+  background: linear-gradient(
+    145deg,
+    #14b8a6 0%,
+    #4f46e5 46%,
+    #7c3aed 72%,
+    #14b8a6 100%
+  );
+  background-size: 180% 180%;
+  box-shadow: 0 8px 20px #4f46e51f;
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease,
+    background-position 0.5s ease;
+}
+.hero-card-frame::before {
+  content: "";
+  position: absolute;
+  inset: 12px 8px -7px;
+  z-index: -1;
+  border-radius: 25px;
+  background: linear-gradient(120deg, #14b8a6, #4f46e5 55%, #7c3aed);
+  filter: blur(18px);
+  opacity: 0.16;
+  transition:
+    opacity 0.3s ease,
+    filter 0.3s ease;
+  pointer-events: none;
+}
 .hero-card {
   background: linear-gradient(115deg, #4f46e5 0%, #6541e8 55%, #7c3aed 100%);
   color: #fff;
-  border-radius: 23px;
+  border-radius: 21px;
   padding: 23px 23px 0;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 20px #4f46e51f;
+  box-shadow: inset 0 1px 0 #ffffff26;
+  transform: scale(1);
+  transition:
+    transform 0.22s ease,
+    border-radius 0.22s ease,
+    filter 0.22s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .hero-card-frame:hover {
+    background-position: 100% 100%;
+    box-shadow:
+      0 0 30px 1px #14b8a64d,
+      0 14px 34px #4f46e533;
+    transform: translateY(-2px);
+  }
+  .hero-card-frame:hover::before {
+    opacity: 0.38;
+    filter: blur(21px);
+  }
+  .hero-card-frame:hover .hero-card {
+    border-radius: 23px;
+    transform: scale(0.985);
+    filter: saturate(1.08) brightness(1.03);
+  }
+}
+.hero-card-frame:active .hero-card {
+  border-radius: 23px;
+  transform: scale(0.985);
 }
 .hero-top {
   display: flex;
@@ -442,6 +502,18 @@ button:disabled svg {
   height: 325px;
   right: -123px;
   top: -75px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-card-frame,
+  .hero-card-frame::before,
+  .hero-card {
+    transition: none;
+  }
+  .hero-card-frame:hover,
+  .hero-card-frame:active .hero-card,
+  .hero-card-frame:hover .hero-card {
+    transform: none;
+  }
 }
 .salary-card {
   margin: 16px 0 27px;

@@ -75,36 +75,38 @@ export function Home({
           </div>
         </div>
       )}
-      <section className="hero-card">
-        <div className="hero-orbit orbit-a" />
-        <div className="hero-orbit orbit-b" />
-        <div className="hero-top">
-          <span>
-            <span className="live-dot" /> TODAY, IN FOCUS
-          </span>
-          <Icon name="ArrowUpRight" size={22} />
-        </div>
-        <div className="hero-amount">{money(today)}</div>
-        <p className="hero-label">spent today</p>
-        <div className="hero-bottom">
-          <span>
-            <strong>{money(budget.salary - spent)}</strong> left of your monthly
-            budget
-          </span>
-          <div className="mini-sparkline">
-            <svg viewBox="0 0 70 30" aria-hidden="true">
-              <path
-                d="M2 25 12 22 19 24 31 13 40 17 49 9 58 13 68 2"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+      <div className="hero-card-frame">
+        <section className="hero-card">
+          <div className="hero-orbit orbit-a" />
+          <div className="hero-orbit orbit-b" />
+          <div className="hero-top">
+            <span>
+              <span className="live-dot" /> TODAY, IN FOCUS
+            </span>
+            <Icon name="ArrowUpRight" size={22} />
           </div>
-        </div>
-      </section>
+          <div className="hero-amount">{money(today)}</div>
+          <p className="hero-label">spent today</p>
+          <div className="hero-bottom">
+            <span>
+              <strong>{money(budget.salary - spent)}</strong> left of your
+              monthly budget
+            </span>
+            <div className="mini-sparkline">
+              <svg viewBox="0 0 70 30" aria-hidden="true">
+                <path
+                  d="M2 25 12 22 19 24 31 13 40 17 49 9 58 13 68 2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
+        </section>
+      </div>
       <section className="salary-card">
         <span className="salary-icon">
           <Icon name="Banknote" size={23} />
