@@ -1,0 +1,167 @@
+@property --spendlens-glow-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.glow-container {
+  --glow-accent: #4f46e5;
+  --glow-x: 25%;
+  --glow-y: 0%;
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* A restrained halo outside the card and a moving, masked ribbon around its rim. */
+.glow-container::before {
+  content: "";
+  position: absolute;
+  inset: 8px 3px -5px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--glow-accent);
+  filter: blur(15px);
+  opacity: 0.13;
+  pointer-events: none;
+  transition:
+    opacity 0.3s,
+    inset 0.3s;
+}
+.glow-container > .glow {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    110px circle at var(--glow-x) var(--glow-y),
+    color-mix(in srgb, var(--glow-accent) 18%, transparent),
+    transparent 80%
+  );
+  transition: opacity 0.3s;
+}
+.glow-container > .glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--spendlens-glow-angle),
+    color-mix(in srgb, var(--glow-accent) 18%, var(--border)) 0deg,
+    var(--glow-accent) 55deg,
+    color-mix(in srgb, var(--glow-accent) 35%, white) 85deg,
+    color-mix(in srgb, var(--glow-accent) 18%, var(--border)) 130deg,
+    color-mix(in srgb, var(--glow-accent) 18%, var(--border)) 220deg,
+    var(--glow-accent) 275deg,
+    color-mix(in srgb, var(--glow-accent) 18%, var(--border)) 320deg
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spendlens-glow-orbit 7s linear infinite;
+  animation-delay: var(--glow-phase, 0s);
+  animation-play-state: var(--glow-play, running);
+  opacity: 0.75;
+  transition: opacity 0.3s;
+}
+@keyframes spendlens-glow-orbit {
+  to {
+    --spendlens-glow-angle: 360deg;
+  }
+}
+
+.bucket-card.glow-container {
+  border-color: transparent;
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--glow-accent) 7%, var(--card)),
+    var(--card) 60%
+  );
+  box-shadow: 0 5px 16px color-mix(in srgb, var(--glow-accent) 7%, transparent);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.3s ease;
+}
+.bucket-card.glow-container.expanded {
+  border-color: transparent;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--glow-accent) 18%, transparent);
+}
+.bucket-card.glow-container.expanded::before {
+  opacity: 0.25;
+}
+.bucket-card.glow-container.expanded > .glow::before {
+  opacity: 1;
+  padding: 2px;
+}
+.bucket-card.glow-container > :not(.glow) {
+  position: relative;
+}
+.bucket-card.glow-container > .row-between {
+  z-index: 1;
+}
+.bucket-card.glow-container .category-icon {
+  box-shadow:
+    inset 0 1px 0 #ffffff55,
+    0 3px 8px color-mix(in srgb, var(--glow-accent) 12%, transparent);
+  transition: transform 0.3s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+.bucket-card.glow-container:focus-visible {
+  outline-color: var(--glow-accent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .bucket-card.glow-container:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px
+      color-mix(in srgb, var(--glow-accent) 22%, transparent);
+  }
+  .bucket-card.glow-container:hover::before {
+    opacity: 0.35;
+    inset: 12px 0 -5px;
+  }
+  .bucket-card.glow-container:hover .category-icon {
+    transform: translateY(-2px) rotate(-8deg) scale(1.08);
+  }
+}
+.bucket-card.glow-container:active {
+  transform: translateY(1px) scale(0.97);
+}
+:root[data-theme="dark"] .bucket-card.glow-container {
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--glow-accent) 15%, var(--card)),
+    var(--card) 70%
+  );
+}
+:root[data-theme="dark"] .bucket-card.glow-container::before {
+  opacity: 0.22;
+}
+:root[data-theme="dark"] .bucket-card.glow-container.expanded::before {
+  opacity: 0.4;
+}
+@media (prefers-reduced-motion: reduce) {
+  .glow-container > .glow::before {
+    animation: none;
+  }
+  .bucket-card.glow-container:hover,
+  .bucket-card.glow-container:active {
+    transform: none;
+  }
+  .bucket-card.glow-container:hover .category-icon {
+    transform: none;
+  }
+}
+@supports not (mask-composite: exclude) {
+  .glow-container > .glow::before {
+    display: none;
+  }
+  .bucket-card.glow-container {
+    border-color: var(--glow-accent);
+  }
+}
